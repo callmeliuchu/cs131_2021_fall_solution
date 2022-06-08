@@ -16,7 +16,7 @@ def dot_product(a, b):
     """
     out = None
     ### YOUR CODE HERE
-    pass
+    out = np.dot(a,b)
     ### END YOUR CODE
     return out
 
@@ -37,7 +37,7 @@ def complicated_matrix_function(M, a, b):
     """
     out = None
     ### YOUR CODE HERE
-    pass
+    out = dot_product(a,b) * dot_product(M,a.T)
     ### END YOUR CODE
 
     return out
@@ -58,7 +58,7 @@ def eigen_decomp(M):
     w = None
     v = None
     ### YOUR CODE HERE
-    pass
+    w,v = np.linalg.eig(M)
     ### END YOUR CODE
     return w, v
 
@@ -88,7 +88,7 @@ def euclidean_distance_native(u, v):
     #     sum.
 
     ### YOUR CODE HERE
-    pass
+    return sum((uu-vv)**2 for uu,vv in zip(u,v))**0.5
     ### END YOUR CODE
 
 
@@ -120,7 +120,7 @@ def euclidean_distance_numpy(u, v):
     #     sum.
 
     ### YOUR CODE HERE
-    pass
+    return np.sqrt(np.sum((u-v)**2))
     ### END YOUR CODE
 
 
@@ -144,6 +144,8 @@ def get_eigen_values_and_vectors(M, k):
     eigenvalues = []
     eigenvectors = []
     ### YOUR CODE HERE
-    pass
+    w,v = eigen_decomp(M)
+    eigenvalues = w[:k]
+    eigenvectors = v[:,:k].T
     ### END YOUR CODE
     return eigenvalues, eigenvectors

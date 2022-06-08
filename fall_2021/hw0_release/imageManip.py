@@ -20,7 +20,7 @@ def load(image_path):
 
     ### YOUR CODE HERE
     # Use skimage io.imread
-    pass
+    out = io.imread(image_path)
     ### END YOUR CODE
 
     # Let's convert the image to be between the correct range.
@@ -45,7 +45,7 @@ def crop_image(image, start_row, start_col, num_rows, num_cols):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    out = image[start_row:start_row+num_rows,start_col:start_col+num_cols,:]
     ### END YOUR CODE
 
     return out
@@ -68,7 +68,7 @@ def dim_image(image):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    out = 0.5*image**2
     ### END YOUR CODE
 
     return out
@@ -96,7 +96,10 @@ def resize_image(input_image, output_rows, output_cols):
     #    > This should require two nested for loops!
 
     ### YOUR CODE HERE
-    pass
+    for oi in range(output_rows):
+        for oj in range(output_cols):
+            output_image[oi][oj] = input_image[int(input_rows/output_rows * oi)][int(input_cols/output_cols*oj)]
+            
     ### END YOUR CODE
 
     # 3. Return the output image
@@ -119,7 +122,9 @@ def rotate2d(point, theta):
     # Reminder: np.cos() and np.sin() will be useful here!
 
     ## YOUR CODE HERE
-    pass
+    R = np.array([[np.cos(theta),-np.sin(theta)],
+                 [np.sin(theta),np.cos(theta)]])
+    return R.dot(point.T).T
     ### END YOUR CODE
 
 
@@ -141,7 +146,18 @@ def rotate_image(input_image, theta):
     output_image = np.zeros_like(input_image)
 
     ## YOUR CODE HERE
-    pass
+    center_x = input_rows / 2
+    center_y = input_cols / 2
+    for row in range(input_rows):
+        for col in range(input_cols):
+            x = row - center_x
+            y = center_y - col
+            idx0,idx1 = rotate2d(np.array([x,y]),theta)
+            idx0 = idx0 + center_x
+            idx1 = center_y - idx1
+            idx0,idx1 = int(idx0),int(idx1)
+            if 0 < idx0 < input_rows and 0 < idx1 < input_cols:
+                output_image[row,col,:] = input_image[idx0,idx1,:]
     ### END YOUR CODE
 
     # 3. Return the output image

@@ -20,13 +20,25 @@ def camera_from_world_transform(d: float = 1.0) -> np.ndarray:
     """
     T = np.eye(4)
     # YOUR CODE HERE
-    pass
+    t = np.array([
+        [1,0,0,-1/np.sqrt(2)],
+        [0,1,0,0],
+        [0,0,1,-1/np.sqrt(2)],
+        [0,0,0,1],
+    ])
+    r = np.array([
+        [1/np.sqrt(2),0,-1/np.sqrt(2),0],
+        [0,1,0,0],
+        [-1/np.sqrt(2),0,-1/np.sqrt(2),0],
+        [0,0,0,1],
+    ])
+    T = np.linalg.inv(r).dot(t)
     # END YOUR CODE
     assert T.shape == (4, 4)
     return T
 
 
-def apply_transform(T: np.ndarray, points: np.ndarray) -> Tuple[np.ndarray]:
+def xx(T: np.ndarray, points: np.ndarray) -> Tuple[np.ndarray]:
     """Apply a transformation matrix to a set of points.
 
     Hint: You'll want to first convert all of the points to homogeneous coordinates.
@@ -50,12 +62,20 @@ def apply_transform(T: np.ndarray, points: np.ndarray) -> Tuple[np.ndarray]:
     """
     N = points.shape[1]
     assert points.shape == (3, N)
+    points = np.row_stack((points,[1]*N))
+#     print(points)
 
     # You'll replace this!
     points_transformed = np.zeros((3, N))
+    
 
     # YOUR CODE HERE
-    pass
+    t = T.dot(points)
+#     print(t)
+    t = t / t[3,:]
+#     print(t)
+    points_transformed = points_transformed[:3,:]
+#     print(points_transformed)
     # END YOUR CODE
 
     assert points_transformed.shape == (3, N)
@@ -86,7 +106,13 @@ def intersection_from_lines(
     out = np.zeros(2)
 
     # YOUR CODE HERE
-    pass
+    A = np.array([
+        a_1 - a_0,
+        b_0 - b_1
+    ]).T
+    b = b_0 - a_0
+    t = np.linalg.inv(A).dot(b.T)
+    out = a_0 + (a_1-a_0)*t[0]
     # END YOUR CODE
 
     assert out.shape == (2,)
@@ -118,8 +144,19 @@ def optical_center_from_vanishing_points(
     optical_center = np.zeros(2)
 
     # YOUR CODE HERE
-    pass
+    v21 = v2 - v1
+    v21_ = np.array([v21[1],-v21[0]])
+    v01 = v0 - v1
+    v01_ = np.array([v01[1],-v01[0]])
+    A = np.array([
+        [v21_[0],-v01_[0]],
+        [v21_[1],-v01_[1]]
+    ])
+    b = v2 - v0
+    t = np.linalg.inv(A).dot(b)
+    optical_center = v0 + v21_*t[0]
     # END YOUR CODE
+    print(np.mean(optical_center))
 
     assert optical_center.shape == (2,)
     return optical_center
@@ -144,7 +181,19 @@ def focal_length_from_two_vanishing_points(
     f = None
 
     # YOUR CODE HERE
-    pass
+    v10 = v1 - v0
+    v10_ = np.array([v10[1],-v10[0]])
+    A = np.array([
+        [v10[0],-v10_[0]],
+        [v10[1],-v10_[1]]
+    ])
+    b = optical_center - v0
+    t = np.linalg.inv(A).dot(b)
+    vv = v0 + v10 * t[0]
+    d1 = np.sum((vv-v0)**2)**0.5
+    d2 = np.sum((vv-v1)**2)**0.5
+    d3 = np.sum((vv-optical_center)**2)**0.5
+    f = np.sqrt(d1*d2-d3**2)
     # END YOUR CODE
 
     return float(f)
@@ -168,7 +217,7 @@ def physical_focal_length_from_calibration(
     f_mm = None
 
     # YOUR CODE HERE
-    pass
+    f_mm = sensor_diagonal_mm / image_diagonal_pixels * f
     # END YOUR CODE
 
     return f_mm
